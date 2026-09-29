@@ -1,0 +1,28 @@
+name = "craig-ops"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Workers AI binding — Craig's own model stack
+[ai]
+binding = "AI"
+
+# KV — Craig's own memory (conversations, tasks, handoffs, registration)
+[[kv_namespaces]]
+binding = "CRAIG_KV"
+# id = "<set after: wrangler kv namespace create CRAIG_KV>"
+
+# Heartbeat every 15 minutes
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Secrets (never in this file — set via `wrangler secret put`):
+#   TELEGRAM_BOT_TOKEN  — @craig_deadbrands_bot token (from BotFather)
+#   DAVID_TELEGRAM_ID   — 8883483072
+#   WEBHOOK_SECRET      — random string guarding the webhook path
+#   PORTAL_SECRET       — shared secret for the CRM portal chat box (also set
+#                         as CRAIG_PORTAL_SECRET env on the portal host)
+# Optional vars:
+#   BOT_USERNAME        — craig_deadbrands_bot (default baked in)
+#   HQ_GROUP_ID         — Telegram group id for "David + Craig HQ" (for /handoff mirroring)
+[vars]
+BOT_USERNAME = "craig_deadbrands_bot"

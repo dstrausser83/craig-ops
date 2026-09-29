@@ -1,0 +1,25 @@
+<!-- Craig panel — include in the CRM portal nav; requires portal login. -->
+<div id="craig-panel" style="border:1px solid #333;border-radius:12px;padding:16px;max-width:560px;">
+  <h3>🤖 Craig <small style="font-weight:normal;color:#888">Director of Operations</small></h3>
+  <div id="craig-status" style="font-size:12px;color:#888;margin-bottom:8px;">checking…</div>
+  <div id="craig-log" style="height:300px;overflow-y:auto;background:#111;border-radius:8px;padding:10px;margin-bottom:10px;font-size:14px;"></div>
+  <div style="display:flex;gap:8px;">
+    <input id="craig-input" type="text" placeholder="Ask Craig anything…" style="flex:1;padding:8px;border-radius:8px;border:1px solid #444;background:#1a1a1a;color:#eee;">
+    <button id="craig-send" style="padding:8px 16px;border-radius:8px;">Send</button>
+  </div>
+</div>
+<script>
+(function(){
+  const log=document.getElementById('craig-log'), input=document.getElementById('craig-input');
+  function say(who,text){const d=document.createElement('div');d.innerHTML='<b>'+who+':</b> '+text.replace(/</g,'&lt;');log.appendChild(d);log.scrollTop=log.scrollHeight;}
+  fetch('/craig/api/status').then(r=>r.json()).then(j=>{
+    document.getElementById('craig-status').textContent = j.ok ? '● online — independent stack' : '○ offline ('+(j.error||'?')+')';
+  }).catch(()=>{document.getElementById('craig-status').textContent='○ offline';});
+  function send(){const t=input.value.trim();if(!t)return;input.value='';say('You',t);say('Craig','…');
+    fetch('/craig/api/message',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:t})})
+      .then(r=>r.json()).then(j=>{log.lastChild.remove();say('Craig',j.ok?j.reply:('⚠️ '+(j.error||'error')));})
+      .catch(()=>{log.lastChild.remove();say('Craig','⚠️ unreachable');});}
+  document.getElementById('craig-send').onclick=send;
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+})();
+</script>
