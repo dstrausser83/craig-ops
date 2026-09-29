@@ -77,3 +77,11 @@ wrangler secrets — never in Drive, chat, or logs.
 $0. Workers free: 100k req/day. Workers AI free: 10k neurons/day
 (chat uses a few hundred/day). KV free: 1 GB, 100k reads/day.
 Cron triggers included on free.
+
+## Optional: craig.deadbrands.co
+
+After deploy, add a Custom Domain in the Cloudflare dashboard
+(Workers → craig-ops → Settings → Domains): `craig.deadbrands.co`
+(requires deadbrands.co on Cloudflare DNS). Then Telegram's webhook URL
+and `CRAIG_WORKER_URL` become `https://craig.deadbrands.co/webhook/...`.
+Cosmetic only — the workers.dev URL works fine.
