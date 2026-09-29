@@ -68,11 +68,28 @@ async function pushHistory(env, chatId, role, content) {
   await kv.put(env, `hist:${chatId}`, h.slice(-HISTORY_LEN), 60 * 60 * 24 * 7);
 }
 
+async function operatingContext(env) {
+  // Continuity bridge: Rock's mind/heart/identity snapshot, pushed hourly
+  // by push-context.sh. Truncated to stay within prompt budget.
+  try {
+    const [soul, ident, synced] = await Promise.all([
+      env.CRAIG_KV.get("ctx:SOUL.md"),
+      env.CRAIG_KV.get("ctx:IDENTITY.md"),
+      env.CRAIG_KV.get("ctx:synced_at"),
+    ]);
+    if (!soul && !ident) return "";
+    const ts = synced ? JSON.parse(synced).at : "unknown";
+    return `Operating context snapshot (synced ${ts}):\n` +
+      `SOUL: ${(soul || "").slice(0, 2500)}\nIDENTITY: ${(ident || "").slice(0, 1500)}`;
+  } catch { return ""; }
+}
+
 // ---------- Brain ----------
 async function think(env, chatId, userText, contextNote = "") {
   const history = await getHistory(env, chatId);
+  const opCtx = await operatingContext(env);
   const messages = [
-    { role: "system", content: SYSTEM_PROMPT + (contextNote ? `\n\nContext: ${contextNote}` : "") },
+    { role: "system", content: SYSTEM_PROMPT + (opCtx ? `\n\n${opCtx}` : "") + (contextNote ? `\n\nContext: ${contextNote}` : "") },
     ...history,
     { role: "user", content: userText },
   ];
